@@ -13,6 +13,10 @@ html, body {
     min-width: 800px;
     margin: 0 auto;
   }
+  body > * {
+    background-color: blue;
+    padding: 1%;
+  }
   header{
     background-color: green;
     margin-bottom: 10px;
@@ -43,10 +47,6 @@ html, body {
     text-align: center;
   }
       
-    body > * {
-    background-color: red;
-    padding: 1%;
-  }
   
   main, header, nav, aside, footer {
     background-color: rgba(0,255,0,0.5);
