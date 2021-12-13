@@ -83,7 +83,7 @@ html, body {
     flex: 1;
   }
   
-  nav a, nav span {
+  nav a {
     display: inline-block;
     font-size: 2rem;
     height: 3rem;
