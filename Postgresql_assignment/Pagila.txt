@@ -1,0 +1,41 @@
+Section 3 
+Assignment 1
+
+1)select all fields and all record from actor table
+-- select * from actor;  
+
+2)selecting all field and record from film table
+-- select * from film;  
+
+3)selecting all field and record from staff table
+-- select * from staff;   
+
+4)selecting address and district from address table
+-- select address,district from address;  
+
+5)selecting title and description from filmtable
+-- select title, description from film; 
+
+6)Select city and country_id from city table 
+-- select city, country_id from city;   
+
+7)Select all the distinct last names from customer table
+-- select distinct last_name from customer;  
+
+8)Select all the distinct first names from the actor table
+-- select distinct first_name from actor;   
+
+9)Select all the distinct inventory_id values from rental table
+-- select distinct inventory_id from rental; 
+
+10)Find the number of films ( COUNT ).
+-- select count(*) from film; 
+
+11)Find the number of categories.
+-- select count(*) from category; 
+
+12)Find the number of distinct first names in actor table
+-- select count(distinct first_name) from actor; 
+
+13)Select rental_id and the difference between return_date and rental_date in rental table
+--select rental_id, return_date-rental_date from rental; 

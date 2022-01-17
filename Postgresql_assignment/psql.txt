@@ -1,0 +1,90 @@
+Server [localhost]:
+Database [postgres]: northwind
+Port [5432]:
+Username [postgres]:
+Password for user postgres:
+psql (14.1)
+WARNING: Console code page (437) differs from Windows code page (1252)
+         8-bit characters might not work correctly. See psql reference
+         page "Notes for Windows users" for details.
+Type "help" for help.
+
+northwind=# SELECT * FROM orders;
+ orderid | customerid | employeeid | orderdate  | requireddate | shippeddate | shipvia | freight |              shipname              |                  shipaddress                   |    shipcity     |  shipregion   | shippostalcode | shipcountry
+---------+------------+------------+------------+--------------+-------------+---------+---------+------------------------------------+------------------------------------------------+-----------------+---------------+----------------+-------------
+   10248 | VINET      |          5 | 1996-07-04 | 1996-08-01   | 1996-07-16  |       3 |   32.38 | Vins et alcools Chevalier          | 59 rue de l'Abbaye                             | Reims           |               | 51100          | France
+   10249 | TOMSP      |          6 | 1996-07-05 | 1996-08-16   | 1996-07-10  |       1 |   11.61 | Toms SpezialitΣten                 | Luisenstr. 48                                  | Mⁿnster         |               | 44087          | Germany
+   10250 | HANAR      |          4 | 1996-07-08 | 1996-08-05   | 1996-07-12  |       2 |   65.83 | Hanari Carnes                      | Rua do Paτo, 67                                | Rio de Janeiro  | RJ            | 05454-876      | Brazil
+   10251 | VICTE      |          3 | 1996-07-08 | 1996-08-05   | 1996-07-15  |       1 |   41.34 | Victuailles en stock               | 2, rue du Commerce                             | Lyon            |               | 69004          | France
+   10252 | SUPRD      |          4 | 1996-07-09 | 1996-08-06   | 1996-07-11  |       2 |    51.3 | SuprΩmes dΘlices                   | Boulevard Tirou, 255                           | Charleroi       |               | B-6000         | Belgium
+   10253 | HANAR      |          3 | 1996-07-10 | 1996-07-24   | 1996-07-16  |       2 |   58.17 | Hanari Carnes                      | Rua do Paτo, 67                                | Rio de Janeiro  | RJ            | 05454-876      | Brazil
+   10254 | CHOPS      |          5 | 1996-07-11 | 1996-08-08   | 1996-07-23  |       2 |   22.98 | Chop-suey Chinese                  | Hauptstr. 31                                   | Bern            |               | 3012           | Switzerland
+   10255 | RICSU      |          9 | 1996-07-12 | 1996-08-09   | 1996-07-15  |       3 |  148.33 | Richter Supermarkt                 | Starenweg 5                                    | GenΦve          |               | 1204           | Swit
+
+northwind=# /q
+northwind=# \q ==> coming ouside of database
+
+====================================================================
+
+Server [localhost]:
+Database [postgres]: northwind
+Port [5432]:
+Username [postgres]:
+Password for user postgres:
+psql (14.1)
+WARNING: Console code page (437) differs from Windows code page (1252)
+         8-bit characters might not work correctly. See psql reference
+         page "Notes for Windows users" for details.
+Type "help" for help.
+
+northwind=# \l
+                                                   List of databases
+      Name      |  Owner   | Encoding |          Collate           |           Ctype            |   Access privileges   ----------------+----------+----------+----------------------------+----------------------------+----------------------- AdventureWorks | postgres | UTF8     | English_United States.1252 | English_United States.1252 |
+ northwind      | postgres | UTF8     | English_United States.1252 | English_United States.1252 |
+ pagila         | postgres | UTF8     | English_United States.1252 | English_United States.1252 |
+ postgres       | postgres | UTF8     | English_United States.1252 | English_United States.1252 |
+ template0      | postgres | UTF8     | English_United States.1252 | English_United States.1252 | =c/postgres          +                |          |          |                            |                            | postgres=CTc/postgres
+ template1      | postgres | UTF8     | English_United States.1252 | English_United States.1252 | =c/postgres          +                |          |          |                            |                            | postgres=CTc/postgres
+ usda           | postgres | UTF8     | English_United States.1252 | English_United States.1252 |
+(7 rows)
+
+
+northwind=#\! cls ===> clear screen
+
+northwind-# \c AdventureWorks ===. to connect AdventureWorks 
+You are now connected to database "AdventureWorks" as user "postgres".
+AdventureWorks-#
+
+
+northwind-# \c AdventureWorks
+You are now connected to database "AdventureWorks" as user "postgres".
+AdventureWorks-# \dn ==> to see list of schemas
+      List of schemas
+      Name      |  Owner
+----------------+----------
+ hr             | postgres
+ humanresources | postgres
+ pe             | postgres
+ person         | postgres
+ pr             | postgres
+ production     | postgres
+ pu             | postgres
+ public         | postgres
+ purchasing     | postgres
+ sa             | postgres
+ sales          | postgres
+(11 rows)
+
+
+AdventureWorks-# \dt sales.
+Did not find any relation named "sales.".
+
+AdventureWorks=# SELECT * FROM sales.store LIMIT 1
+AdventureWorks-# ;
+ businessentityid |         name         | salespersonid |                                                                                                                                                                                                           demographics                                                                                                                                                                                                           |               rowguid                |      modifieddate
+------------------+----------------------+---------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------------------------------+-------------------------
+              292 | Next-Door Bike Store |           279 | <StoreSurvey xmlns="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/StoreSurvey"><AnnualSales>800000</AnnualSales><AnnualRevenue>80000</AnnualRevenue><BankName>United Security</BankName><BusinessType>BM</BusinessType><YearOpened>1996</YearOpened><Specialty>Mountain</Specialty><SquareFeet>21000</SquareFeet><Brands>2</Brands><Internet>ISDN</Internet><NumberEmployees>13</NumberEmployees></StoreSurvey> | a22517e3-848d-4ebe-b9d9-7437f3432304 | 2014-09-12 11:15:07.497
+(1 row)
+
+
+AdventureWorks=#
