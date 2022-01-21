@@ -1,0 +1,314 @@
+--SECTION 16
+--TABLE CONSTRAINTS
+
+--Purpose of Constraints
+--Contol the kind of data that goes ito table
+--Data types is the most basic kid of contraint.Do i want text, integers,floats,etc.
+--NOT NULL
+
+--1)Create a table called practices with one field practiceid that is NOT NULL
+CREATE TABLE IF NOT EXISTS practices (
+	practiceid integer NOT NULL
+);
+
+SELECT * FROM practices;
+
+INSERT INTO practices (practiceid)
+VALUES (null);
+
+--2)Drop the practices table and recreate with two fields. practiceid integer and practice_field varchar(50) with both being not null
+DROP TABLE IF EXISTS practices;
+
+CREATE TABLE IF NOT EXISTS practices (
+practiceid integer NOT NULL,
+practice_field varchar(50) NOT NULL
+);
+
+
+--3)Add OT NULL Cnstraint To the unitprice field in the products table
+ALTER TABLE products
+ALTER COLUMN unitprice SET NOT NULL;
+
+--4)Make the lastname field of employees table always have a value
+ALTER TABLE employees
+ALTER COLUMN lastname SET NOT NULL;
+******************************************************************
+
+--UNIQUE CONSTRAINT
+--1)Create a table called practices with one field practiceid that is UNIQUE and fieldname varchar(50) has NOT NULL Constraint.
+--must drop the old version
+
+DROP TABLE IF EXISTS practices;
+
+CREATE TABLE practices (
+	practiceid integer UNIQUE,
+  fieldname varchar(50) NOT NULL
+);
+SELECT * FROM practices;
+
+INSERT INTO practices (practiceid,fieldname)
+VALUES (1, 'field1');
+--INSERT INTO practices (practiceid,fieldname)
+--VALUES (1, 'field2');  => shows error ERROR:  duplicate key value violates unique constraint "practices_practiceid_key"
+DETAIL:  Key (practiceid)=(1) already exists.
+SQL state: 23505
+INSERT INTO practices (practiceid,fieldname)
+VALUES (2, 'field2');
+
+
+--2)Create a table called pets with 2 fields: petid integer that is UNIQUE name varchar(25) and must not have null values
+DROP TABLE IF EXISTS pets;
+
+CREATE TABLE pets (
+	petid integer UNIQUE,
+    name varchar(25) NOT NULL
+);
+
+SELECT * FROM pets;
+
+--Add UNIQUE CONSTRAINT
+--1)To the regiondescription field in the region table
+SELECT * FROM region;
+
+ALTER TABLE region
+ADD CONSTRAINT region_description UNIQUE(regiondescription);
+
+--2)Make the companyname field of shippers table is unique. 
+SELECT * FROM shippers;
+ALTER TABLE shippers
+ADD CONSTRAINT shippers_companyname UNIQUE(companyname);
+****************************************************************
+
+--PRIMARY KEY
+--1)Create a table called practices with one field practiceid that is primary key and fieldname varchar(50) has NOT NULL Constraint.
+--must drop the old version
+
+DROP TABLE IF EXISTS practices;
+
+CREATE TABLE practices (
+	practiceid integer PRIMARY KEY,
+fieldname varchar(50) NOT NULL
+);
+
+SELECT * FROM practices;
+
+INSERT INTO practices (practiceid,fieldname)
+VALUES (1, 'somethig');
+INSERT INTO practices (practiceid,fieldname)
+VALUES (1, 'field1'); -- =>ERROR:  duplicate key value violates unique constraint "practices_pkey"
+--DETAIL:  Key (practiceid)=(1) already exists.
+--SQL state: 23505
+INSERT INTO practices (practiceid,fieldname)
+VALUES (2, 'field2');
+
+--2)Drop old pets table and create a table called pets with 2 fields: petid integer that is primary key ,name varchar(25) and must not have null values
+DROP TABLE IF EXISTS pets;
+
+CREATE TABLE pets (
+	petid integer PRIMARY KEY,
+name varchar(25) NOT NULL
+);
+ SELECT * FROM pets;
+
+--3)Drop and Recreate Primary Key contraint for practices table
+ALTER TABLE practices
+DROP CONSTRAINT practices_practiceid_key;
+
+ALTER TABLE practices
+ADD PRIMARY KEY (practiceid);
+
+--4)Drop primary key for pets and re-create
+ALTER TABLE pets
+DROP CONSTRAINT pets_petid_key;
+
+ALTER TABLE pets
+ADD PRIMARY KEY (petid);
+******************************************************************
+
+--FOREGIN KEY
+--1)Called practices with fields: practiceid that is primary key fieldname varchar(50) has NOT NULL constraint, employeeid integer which is never null and a foreign key for employees table. Must drop thhe old version.
+DROP TABLE IF EXISTS practices;
+
+CREATE TABLE practices (
+	practiceid integer PRIMARY KEY,
+	practicefield varchar(50) NOT NULL,
+	employeeid integer NOT NULL,
+	FOREIGN KEY (employeeid) REFERENCES employees(employeeid)
+);
+
+--2)Drop old pets table and create a table called pets with 3 fields: petid integer that is the primary key, name varchar(25) and must not have null values, customerid char(5) which cant be null and a foreign key from customers table
+DROP TABLE IF EXISTS pets;
+
+CREATE TABLE pets (
+	petid integer PRIMARY KEY,
+	name varchar(25) NOT NULL,
+	customerid char(5) NOT NULL,
+	FOREIGN KEY (customerid) REFERENCES customers(customerid)
+);
+
+
+--3)Drop and Recreate Foreign Key Constraint for practices table
+ALTER TABLE practices
+DROP CONSTRAINT practices_employeeid_fkey;
+
+ALTER TABLE practices
+ADD CONSTRAINT practices_employee_fkey
+FOREIGN KEY (employeeid) REFERENCES employees(employeeid);
+
+--4)Drop foreign key for customerid in pets table and re-create
+ALTER TABLE pets
+DROP CONSTRAINT pets_customerid_fkey;
+
+ALTER TABLE pets
+ADD CONSTRAINT pets_customerid_fkey
+FOREIGN KEY (customerid) REFERENCES customers(customerid);
+*********************************************************************
+
+--CHECK CONSTRAINT
+
+--1)Called practices with fields: practiceid that is primary key fieldname varchar(50) has NOT NULL constraint, employeeid integer which is never null and a foreign key for employees table.cost integer which must be between 0 to 1000 Must drop thhe old version.
+
+DROP TABLE IF EXISTS practices;
+
+CREATE TABLE practices (
+	practiceid integer PRIMARY KEY,
+	practicefield varchar(50) NOT NULL,
+	employeeid integer NOT NULL,
+	cost integer CONSTRAINT practices_cost CHECK (cost >= 0 AND cost <= 1000),
+	FOREIGN KEY (employeeid) REFERENCES employees(employeeid)
+);
+
+INSERT INTO practices (practiceid,practicefield ,employeeid ,cost )
+VALUES(1,'somename',1,1500); --ERROR:  new row for relation "practices" violates check constraint "practices_cost"
+							--DETAIL:  Failing row contains (1, somename, 1, 1500).
+							--SQL state: 23514
+							
+INSERT INTO practices (practiceid,practicefield ,employeeid ,cost )
+VALUES(1,'somename',1,1000);
+
+SELECT * FROM practices;
+
+--2)Drop old pets table and create a table called pets with 4 fields: petid integer that is the primary key,
+--name varchar(25) and must not have null values, customerid char(5) which cant be null 
+--and a foreign key from customers table weight integer which has to be greater than 0 and less than 200
+
+DROP TABLE IF EXISTS pets;
+
+CREATE TABLE pets (
+	petid integer PRIMARY KEY,
+	name varchar(25) NOT NULL,
+	customerid char(5) NOT NULL,
+	weight integer CONSTRAINT pets_weight CHECK (weight > 0 AND weight < 200),
+	FOREIGN KEY (customerid) REFERENCES customers(customerid)
+);
+
+
+--3)Add Constraint TO orders table that freight must be more than 0
+ALTER TABLE orders
+ADD CONSTRAINT orders_freight CHECK (freight > 0);
+
+--4)Add check constraint that unitprice in products table must be positive
+ALTER TABLE products
+ADD CONSTRAINT products_unitprice CHECK (unitprice > 0);
+**************************************************************************
+
+--DEFAULT CONSTRAINT
+
+--1)Called practices with fields: practiceid that is primary key fieldname varchar(50) has NOT NULL constraint, 
+--employeeid integer which is never null and a foreign key for employees table.
+--cost integer which must be between 0 to 1000 and default 50. Must drop thhe old version.
+DROP TABLE IF EXISTS practices;
+
+CREATE TABLE practices (
+	practiceid integer PRIMARY KEY,
+	practicefield varchar(50) NOT NULL,
+	employeeid integer NOT NULL,
+	cost integer DEFAULT 50 CONSTRAINT practices_cost CHECK (cost >= 0 AND cost <= 1000),
+	FOREIGN KEY (employeeid) REFERENCES employees(employeeid)
+);
+SELECT * FROM practices;
+
+INSERT INTO practices (practiceid,practicefield ,employeeid )
+VALUES(1,'somename',1); -- SET DEFAULT COST 50
+
+--2)Drop old pets table and create a table called pets with 4 fields: petid integer that is the primary key,
+--name varchar(25) and must not have null values, customerid char(5) which cant be null 
+--and a foreign key from customers table weight integer which has to be greater than 0 and less than 200 and default 5
+DROP TABLE IF EXISTS pets;
+
+CREATE TABLE pets (
+	petid integer PRIMARY KEY,
+	name varchar(25) NOT NULL,
+	customerid char(5) NOT NULL,
+	weight integer DEFAULT 5 CONSTRAINT pets_weight CHECK (weight > 0 AND weight < 200),
+	FOREIGN KEY (customerid) REFERENCES customers(customerid)
+);
+SELECT * FROM pets;
+
+--3)Add default To orders table that shivvia default to 1
+ALTER TABLE orders
+ALTER COLUMN shipvia SET DEFAULT 1;
+SELECT * FROM orders limit 5;
+
+--4) Set the default value of recorderleel in products table to 5
+ALTER TABLE products
+ALTER COLUMN reorderlevel SET DEFAULT 5;
+SELECT * FROM products;
+***************************************************************
+--Changing a columns Default value
+
+--1)Lets add a default recordlevel of 5 to products table
+ALTER TABLE products
+ALTER COLUMN reorderlevel SET DEFAULT 5
+
+--2)Drop the recorderlevel from products table
+ALTER TABLE products
+ALTER COLUMN reorderlevel DROP DEFAULT
+
+--3)Make the suppliers homepage a default of 'N/A'(not available)
+ALTER TABLE suppliers
+ALTER COLUMN homepage SET DEFAULT 'N/A'
+
+--4)Remove the homepage default on the suppliers table
+ALTER TABLE suppliers
+ALTER COLUMN homepage DROP DEFAULT
+******************************************************************
+
+--ADDING AND REMOVING A COLUMNS CONSTRAINT
+
+--1)Add a check constraint on products to reorderlevel  that it must be greater than 0
+ALTER TABLE products
+ADD CHECK ( reorderlevel >= 0);
+
+SELECT * FROM products;
+-- All rows must meet the condition
+UPDATE products
+SET reorderlevel = 0
+WHERE reorderlevel is null or reorderlevel < 0;
+
+--2)Add not null constraint -- set a not null constraint on products for the discontinued column
+ALTER TABLE products
+ALTER COLUMN discontinued SET NOT NULL;
+
+--3)Drop the recorderlevel constraint we added
+ALTER TABLE products
+DROP CONSTRAINT products_reorderlevel_check;
+
+--4)Drop the not null constraint on discontinued column we added for products
+ALTER TABLE products
+ALTER COLUMN discontinued DROP NOT NULL;
+
+--5)Add a check constraint to order_details column unitprice to make sure it is a positive number
+ALTER TABLE order_details
+ADD CHECK (unitprice > 0);
+
+--6)Add a not null constraint to discount colunm in order_details table
+ALTER TABLE order_details
+ALTER COLUMN discount SET NOT NULL;
+
+--7)Remove the two constraints you just added
+ALTER TABLE order_details
+DROP CONSTRAINT order_details_unitprice_check;
+
+ALTER TABLE order_details
+ALTER COLUMN discount DROP NOT NULL;

@@ -1,0 +1,75 @@
+--SECTION 20
+--Conditional expressions
+--CASE WHEN: First syntax (case when value then result else default END)
+--1)We want to return company name, country and continent our customers are fom
+SELECT companyname,country,
+CASE WHEN country IN ('Austria','Germany','Poland','France','Sweden','Italy','Spain',
+             'UK','Ireland','Belgium','Finland','Norway','Portugal','Switzerland') THEN 'Europe'
+             WHEN country IN ('Canada','Mexico','USA') THEN 'North America'
+             WHEN country IN ('Argentina','Brazil','Venezuela') THEN 'South America'
+             ELSE country
+END AS continent
+FROM customers;
+
+--2)A list ofproducts names, unit price and lable corresponding to inexpensive if unit price is below $10, mid-range if price $50 up to $50 andexpensive if over $50
+SELECT productname,unitprice,
+CASE WHEN unitprice<10 THEN 'inexpensive'
+     WHEN unitprice>=10 AND unitprice<=50 THEN 'mid-range'
+	 WHEN unitprice > 50 THEN 'premium'
+END AS quality
+FROM products;
+
+--Second syntax (case field when value then result else default END)
+--3)Letsgive our supplier cities a nickname
+SELECT companyname,city,
+CASE city WHEN 'New Orleans' THEN 'Big Easy'
+WHEN 'Paris' THEN 'City of Lights'
+ELSE 'Needs nickname'
+END as nickname
+FROM suppliers;
+
+
+--4)Pull back orders with orderid, cutomerid, and year1 if orderdate is in 1996, year2 if orderdate is in 1997, and year3 if orderdate is in 1998
+--you will have to use date_part('year',orderdate) to select the year out of orderdate field
+SELECT orderid,customerid,orderdate,
+CASE date_part('year', orderdate)
+	WHEN 1996 THEN 'year1'
+	WHEN 1997 THEN 'year2'
+	WHEN 1998 THEN 'year3'
+END
+FROM orders;
+
+******************************************************************************
+--Coalesce function
+--You supply a list of fields or values. It returns the first non-null value. Often used to substitute a default value for a null value.
+
+--1)Return 'N/A'(not applicable) for region from orders when field is null
+SELECT customerid,shipregion FROM orders;
+SELECT customerid,COALESCE(shipregion,'N/A') FROM orders;
+
+--2)Return alist f suppliers company name and home page. If home page is missing put in "Call to find" for field.
+SELECT companyname,homepage FROM suppliers;
+SELECT companyname,COALESCE(homepage,'Call to find') from suppliers;
+
+***********************************************************************************
+--NULLIF => Used to return a null if two values are equal. Used to tigger a null in Coalese so next value is used
+
+UPDATE suppliers
+SET homepage = ''
+WHERE homepage IS NULL;
+
+UPDATE customers
+SET fax = ''
+WHERE fax IS NULL;
+
+--1)Same example as before but without null's. Return hompage of suppliers or 'Need to call' if the homepage is missig
+SELECT companyname,phone,homepage FROM suppliers;
+SELECT companyname,phone,
+COALESCE(NULLIF(homepage,''),'Need to call')
+FROM suppliers;
+
+--2)Needa confirmation list of customers. Return fax number if available or phone as secondary option.
+SELECT companyname,phone,fax FROM suppliers;
+SELECT companyname,
+COALESCE(NULLIF(fax,''),phone) AS confirmation
+FROM customers;

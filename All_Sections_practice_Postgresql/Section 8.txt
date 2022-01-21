@@ -1,0 +1,179 @@
+-----Section 8 Joining multiple tables together
+
+--join information from two tables
+--1) I need a report that gives me customername,orderdate and shipcountry.You Know that data is in two separate tables: customers and orders 
+SELECT companyname,orderdate,shipcountry
+FROM orders
+JOIN customers ON customers.customerid=orders.customerid;
+
+--2)Connect employees to orders and pullback first name, last name and order date for all orders
+SELECT firstname,lastname,orderdate
+FROM orders
+JOIN employees ON employees.employeeid=orders.employeeid;
+
+--3)Connect products to suppliers and pull back company name, unit cost and unit in stock
+SELECT companyname,unitprice,unitsinstock
+FROM products
+JOIN suppliers ON products.supplierid=suppliers.supplierid;
+
+
+--multiple joins
+--1)Connect Customers, orders, orderdetails--Bring back company name, order date, productid,unitprice and quantity
+SELECT companyname,orderdate,unitprice,quantity
+FROM orders
+JOIN order_details ON orders.orderid=order_details.orderid
+JOIN customers ON customers.customerid=orders.customerid;
+
+--2)Connect products to previous query and add product name to fields returned
+SELECT companyname, productname, orderdate, order_details.unitprice, quantity
+FROM orders
+JOIN order_details ON orders.orderid=order_details.orderid
+JOIN customers ON customers.customerid=orders.customerid
+JOIN products ON products.productid=order_details.productid;
+
+--3)Connect categories to previous query and bring back category name 
+SELECT companyname, productname, categoryname,Orderdate, order_details.unitprice, quantity
+FROM orders
+JOIN order_details ON orders.orderid=order_details.orderid
+JOIN customers ON customers.customerid=orders.customerid
+JOIN products ON products.productid=order_details.productid
+JOIN categories ON categories.categoryid=products.categoryid;
+
+--4)Take previous query and add a WHERE clause that select category name of Seafood and amount spent>=500
+SELECT companyname, productname, categoryname,orderdate, order_details.unitprice, quantity
+FROM orders
+JOIN order_details ON orders.orderid=order_details.orderid
+JOIN customers ON customers.customerid=orders.customerid
+JOIN products ON products.productid=order_details.productid
+JOIN categories ON categories.categoryid=products.categoryid
+WHERE 	categoryname='Seafood' AND order_details.unitprice*quantity >= 500;
+
+
+--LEFT JOIN--> pull back all records in first table and any matching records in second table
+--1)Connect Customers to orders--> bring back compnay name, and order id
+
+SELECT companyname, orderid
+FROM customers
+LEFT JOIN orders ON customers.customerid=orders.customerid;
+
+--2)Lets look for customers without orders Use WHERE with IS NULL (where order id is null)
+SELECT companyname, orderid
+FROM customers
+LEFT JOIN orders ON customers.customerid=orders.customerid
+WHERE orderid IS NULL;
+
+--3)Do a left join between products and order_details
+SELECT productname, orderid
+FROM products
+LEFT JOIN order_details ON products.productid=order_details.productid;
+
+--4)use is null to find product without orders
+SELECT productname, orderid
+FROM products
+LEFT JOIN order_details ON products.productid=order_details.productid
+WHERE orderid IS NULL;
+
+
+---RIGHT JOIN--> pulls back matching records in first table and all records in second tables
+--1)Connect Customers to orders--> bring back compnay name, and order id, using reverse table order from last lesson.
+SELECT companyname, orderid
+FROM orders
+RIGHT JOIN customers ON customers.customerid=orders.customerid;
+
+--2)Lets look for customers without orders Use WHERE with IS NULL (where order id is null)
+SELECT companyname, orderid
+FROM orders
+RIGHT JOIN customers ON customers.customerid=orders.customerid
+WHERE orderid IS NULL;
+
+--3)Do a right join between customer demo and customers
+SELECT companyname, customercustomerdemo.customerid
+FROM customercustomerdemo
+RIGHT JOIN customers ON customers.customerid=customercustomerdemo.customerid;
+
+--FULL JOIN => pulls all records in first table and all records in second table
+--1)Connect Customers to orders--> bring back compnay name, and order id
+
+SELECT companyname, orderid
+FROM orders
+FULL JOIN customers ON customers.customerid=orders.customerid;
+
+--2)Do a full join between products and categories
+SELECT productname, categoryname
+FROM categories
+FULL JOIN products ON products.categoryid=categories.categoryid;
+
+
+--SELF JOIN => connect a table back to itself
+--1)Who are in the same city and order by city
+SELECT c1.companyname AS CustomerName1, c2.companyname AS CustomerName2, c1.city
+FROM customers AS c1
+JOIN customers AS c2 on c1.city=c2.city
+ORDER BY c1.city;
+
+--2)Lets try again WHERE c1.custmerid<>c2.custmerid
+SELECT c1.companyname AS CustomerName1, c2.companyname AS CustomerName2, c1.city
+FROM customers AS c1
+JOIN customers AS c2 on c1.city=c2.city
+WHERE c1.customerid<>c2.customerid
+ORDER BY c1.city;
+
+
+--3) Find suppliers from same country and order by country
+SELECT  s1.companyname AS SupplierName1,s2.companyname AS SupplierName2,  s1.country
+FROM suppliers s1
+JOIN suppliers s2 ON s1.country= s2.country
+WHERE s1.supplierid <> s2.supplierid
+ORDER BY s1.country;
+
+--or 
+
+SELECT  s1.companyname AS SupplierName1,s2.companyname AS SupplierName2,  s1.country
+FROM suppliers s1, suppliers s2 
+WHERE s1.supplierid <> s2.supplierid
+AND s1.country= s2.country
+ORDER BY s1.country;
+
+--USING TO REDUCE TYPING
+ON customers.cutomerid=orders.customersid
+Lot of typing!!
+Shorcut: USING(customerid)
+
+--1)Join orders to order_details with USING
+SELECT *
+FROM orders
+JOIN order_details USING (orderid);
+
+--2)Add products to the previous join of orders and order_details
+SELECT *
+FROM orders
+JOIN order_details USING (orderid)
+JOIN products USING (productid);
+
+
+--NATURAL JOIN
+--If the fields have same name, NATURAL is shorthand for USING with a list of all columns that are the same in both tables
+--1)Join order and order_details using NATURAL
+SELECT *
+FROM orders
+NATURAL JOIN order_details;
+
+--2)Add customers to previous query using NATURAL join.
+--Warning you must order the joins correctly. The NATURAL must connect previous table to next table or it will do a cross join connecting every row to evry the row.
+SELECT *
+FROM customers
+NATURAL JOIN orders
+NATURAL JOIN order_details;
+
+--It will match all fields that have the same name. wont work joining products to order_details because of the second field unitprice that is in both fields Must use USING or a JOIN ON Syntax
+
+--NATURAL JOIN
+
+--notice the difference between these two joins
+SELECT COUNT(*)
+FROM products
+NATURAL JOIN order_details;  --this is joining on both productid and unitprice
+
+SELECT COUNT(*)
+FROM products
+JOIN order_details USING (productid);

@@ -1,0 +1,218 @@
+--SECTION 26
+--Declaring Array
+
+--1)Lets recreate the friends table and add a children array
+DROP TABLE IF EXISTS friends;
+
+
+CREATE TABLE friends (
+    name full_name,
+    address address,
+    specialdates dates_to_remember,
+    children varchar(50) ARRAY
+);
+
+--2)Create a table salary_employees  with 3 fields name,pay_by_quarter  which is an integer with one dimension and 4values, and schedule which should be text field with 2 dimensions of no particular size
+DROP TABLE IF EXISTS salary_employees;
+
+CREATE TABlE salary_employees (
+    name text,
+    pay_by_quarter integer[4],
+	schedule text[][]
+)
+
+
+************************************************************************
+
+--Inputting Array Values
+
+--1)Lets insert some values into friends
+INSERT INTO friends (name, address, specialdates, children)
+VALUES (ROW('Boyd','M','Gregory'),
+		ROW('7777','','Boise','Idaho','USA','99999'),
+		ROW('1969-02-01',49,'2001-07-15'),
+	   '{"Austin","Ana Grace"}');
+
+SELECT * FROM friends;
+
+ INSERT INTO friends (name, address, specialdates, children)
+ VALUES (ROW('Scott','X','Levy'),
+ 		ROW('357 Page Road','','Austin','TX','USA','88888'),
+ 		ROW('1972-03-01',46,'2002-01-30'),
+ 		   ARRAY['Ben','Jill']);
+
+--2)Add a row into salary_employees, Bill who made 20,000 each quarter and had 2 different schedule records od "meeting","training", and "lunch","sales call".
+INSERT INTO salary_employees (name,pay_by_quarter,schedule)
+VALUES ('Bill',
+		 		'{20000, 20000, 20000, 20000}',
+				'{{"meeting", "training"},{"lunch", "sales call"}}')
+
+SELECT * FROM salary_employees; 
+
+INSERT INTO salary_employees (name,pay_by_quarter,schedule)
+VALUES ('Bill',
+		 ARRAY[20000, 20000, 20000, 20000],
+		 ARRAY[['meeting', 'training'],['lunch', 'sales call']]);
+
+*****************************************************************************
+
+--Accessing Array
+--Syntax For Single Element
+--Use[] for each dimension. Multi-dimensions need more than one.Ex. schedule[2][1]
+--Syntax for Range Of Elements
+----To get more than one use a slice[lower-bound:upper-bound] Ex: schedule[1:2][1:1]
+----Can leave of oe of the bounds to start from beginning or go to end
+
+--1)Grab the 2nd child of all friends
+SELECT children[2]
+FROM friends;
+
+--2)Grab the 2 and 3 elements of pay_by_quarter using range from salary_employees table
+SELECT pay_by_quarter[2:3]
+FROM salary_employees;
+
+--How to fimd Dimensions of Array : Function array_dims()
+--How To Find Length : array_length(field,dimension)
+
+--1)Lets find the dimensions and length of salary_employees
+SELECT array_dims(schedule)
+FROM salary_employees;
+
+SELECT array_length(schedule,1),array_length(schedule,2)
+FROM salary_employees;
+*********************************************************************************
+
+--Modifying the Array
+--Replace the children of Boyd in friends table.
+UPDATE friends
+SET children=ARRAY['Maddie','Timmy','Cheryl']
+WHERE (name).first_name = 'Boyd';
+
+SELECT children
+FROM friends
+WHERE (name).first_name = 'Boyd'
+LIMIT 1;
+
+--2)Replace Boyd's 2nd child
+UPDATE friends
+SET children[2]='Ricky'
+WHERE (name).first_name = 'Boyd';
+
+SELECT children
+FROM friends
+WHERE (name).first_name = 'Boyd'
+LIMIT 1;
+
+--3)Replace Boyd's 2nd and 3rd child
+UPDATE friends
+SET children[2:3]=ARRAY['Suzy','Billy']
+WHERE (name).first_name = 'Boyd';
+
+SELECT children
+FROM friends
+WHERE (name).first_name = 'Boyd'
+LIMIT 1;
+
+--4)Replace Bill's pay_by_quarter with values 22000,25000,27000,22000
+UPDATE salary_employees
+SET pay_by_quarter=ARRAY[22000,25000,27000,22000]
+WHERE name='Bill';
+
+SELECT pay_by_quarter
+FROM salary_employees
+WHERE name='Bill';
+
+--5)Update Bill's 4th pay_by_quarter to 26000
+UPDATE salary_employees
+SET pay_by_quarter[4]=26000
+WHERE name='Bill';
+
+SELECT pay_by_quarter
+FROM salary_employees
+WHERE name='Bill';
+
+--6)Update Bill's 2nd and 3rd  pay_by_quarter to 24,000 and 25000
+UPDATE salary_employees
+SET pay_by_quarter[2:3]=ARRAY[24000,25000]
+WHERE name='Bill';
+
+SELECT pay_by_quarter
+FROM salary_employees
+WHERE name='Bill';
+
+***************************************************************************
+
+--Searching Array
+
+--1)You have to look at each value. Does any of my friends hav a child named Billy
+SELECT *
+FROM friends
+WHERE children[0] = 'Billy' OR children[1] = 'Billy'
+OR children[2]='Billy' OR children[3]='Billy';
+
+--Better way : 1)value= ANY(column) 2)All values must match :Value=ALL(colmn)
+--1)Lets try the same query for Austin.
+SELECT *
+FROM friends
+WHERE 'Austin' = ANY (children)
+
+--2)Search salary employees for anyone with 'sales call' in the schedule
+SELECT *
+FROM salary_employees
+WHERE 'sales call' = ANY (schedule);
+******************************************************************************
+
+--Array Operators
+
+-- equal
+SELECT ARRAY[1, 2, 3, 4] = ARRAY[1, 2, 3, 4];
+==>true
+
+-- not equal, the elements are not in same order
+SELECT ARRAY[1, 2, 4, 3] = ARRAY[1, 2, 3, 4];
+==>False
+
+-- true
+SELECT ARRAY[1, 2, 4, 3] > ARRAY[1, 2, 3, 4];
+
+-- false
+SELECT ARRAY[1, 2, 3, 4] > ARRAY[1, 2, 3, 4];
+
+-- false 3 smaller than 4, doesn't look at 5 greater than 4
+SELECT ARRAY[1, 2, 3, 5] > ARRAY[1, 2, 4, 4];
+
+
+--Containment
+-- 1) @> - contains
+-- 2) <@ - is contained by
+
+-- true
+SELECT ARRAY[1, 2, 3, 5] @> ARRAY[2, 5];
+
+-- false
+SELECT ARRAY[1, 2, 3, 5] @> ARRAY[2, 5, 7];
+
+-- true
+SELECT ARRAY[1, 2] <@ ARRAY[2, 5, 7, 1];
+
+--true
+SELECT ARRAY[1, 2, 3, 5] @> ARRAY[2, 5, 7,3];
+
+--Overlaps : && - have elements in common
+-- true
+SELECT ARRAY[1, 2, 13, 17] && ARRAY[2, 5, 7, 1];
+
+--false
+SELECT ARRAY[ 13, 17] && ARRAY[2, 5, 7, 1];
+
+
+--Use in Query
+--1)Find anyone which child named Billy
+SELECT *
+FROM friends
+WHERE children && ARRAY['Billy'::varchar(50)];
+
+--2)Use overlap to find anyone with 'sales call' in schedule in salary_employees
+SELECT *
+FROM salary_employees
+WHERE schedule && ARRAY['sales call'];

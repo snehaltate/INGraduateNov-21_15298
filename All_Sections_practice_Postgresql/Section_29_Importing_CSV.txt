@@ -1,0 +1,79 @@
+--("id","ident","type","name","latitude_deg","longitude_deg","elevation_ft","continent","iso_country","iso_region","municipality","scheduled_service","gps_code","iata_code","local_code","home_link","wikipedia_link","keywords")
+--CREATE DATABASE airport;
+
+-- CREATE TABLE airports (
+-- 	id int NOT NULL,
+-- 	ident varchar(10),
+-- 	type text,
+-- 	name text,
+-- 	latitude_deg float,
+-- 	longitude_deg float,
+-- 	elevation_ft int,
+-- 	continent text,
+-- 	iso_country varchar(10),
+-- 	iso_region varchar(10),
+-- 	municipality text,
+-- 	scheduled_service text,
+-- 	gps_code varchar(10),
+-- 	iata_code varchar(20),
+-- 	local_code varchar(20),
+-- 	home_link text,
+-- 	wikipedia_link text,
+-- 	keywords text
+-- );
+
+
+-- this won't work in pgAdmin
+--ERROR:  could not open file "C:/Users/snehal15298/Downloads/airports.csv" for reading: Permission denied
+-- HINT:  COPY FROM instructs the PostgreSQL server process to read a file. You may want a client-side facility such as psql's \copy.
+-- SQL state: 42501
+-- COPY airports (	id,ident,type,name,latitude_deg,longitude_deg,elevation_ft,continent,iso_country,iso_region,municipality,scheduled_service,gps_code,iata_code,local_code,home_link,wikipedia_link,keywords)
+-- FROM 'C:/Users/snehal15298/Downloads/airports.csv' DELIMITER ',' CSV HEADER;
+
+
+SELECT count(*) FROM airports;
+
+
+Server [localhost]:
+Database [postgres]: airport
+Port [5432]:
+Username [postgres]:
+Password for user postgres:
+psql (14.1)
+WARNING: Console code page (437) differs from Windows code page (1252)
+         8-bit characters might not work correctly. See psql reference
+         page "Notes for Windows users" for details.
+Type "help" for help.
+
+airport-# \COPY airports (id,ident,type,name,latitude_deg,longitude_deg,elevation_ft,continent,iso_country,iso_region,municipality,scheduled_service,gps_code,iata_code,local_code,home_link,wikipedia_link,keywords) FROM 'C:/Users/snehal15298/Downloads/airports.csv' DELIMITER ',' CSV HEADER;
+ERROR:  character with byte sequence 0x81 in encoding "WIN1252" has no equivalent in encoding "UTF8"
+CONTEXT:  COPY airports, line 10933
+
+airport=# SET client_encoding TO 'UTF8';
+SET
+airport=# \COPY airports (id,ident,type,name,latitude_deg,longitude_deg,elevation_ft,continent,iso_country,iso_region,municipality,scheduled_service,gps_code,iata_code,local_code,home_link,wikipedia_link,keywords) FROM 'C:/Users/snehal15298/Downloads/airports.csv' DELIMITER ',' CSV HEADER;
+COPY 70225
+airport=#
+
+
+--your turn
+--Import airport_frequencies into a table you create airport_frequencies
+CREATE TABLE airport_frequencies (
+	id int,
+	airport_ref int,
+	airport_ident varchar(10),
+	type varchar(20),
+	description text,
+	frequency_mhz float
+);
+
+airport=# \copy airport_frequencies (id,airport_ref,airport_ident,type,description,frequency_mhz) FROM 'C:/Users/snehal15298/Downloads/airport-frequencies.csv' DELIMITER ',' CSV HEADER;
+ERROR:  character with byte sequence 0x8d in encoding "WIN1252" has no equivalent in encoding "UTF8"
+CONTEXT:  COPY airport_frequencies, line 1798
+airport=#
+
+
+airport=# SET client_encoding TO 'UTF8';
+SET
+airport=# \copy airport_frequencies (id,airport_ref,airport_ident,type,description,frequency_mhz) FROM 'C:\Users\snehal15298\Downloads\airport-frequencies.csv' DELIMITER ',' CSV HEADER;
+COPY 28981

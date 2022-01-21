@@ -1,0 +1,92 @@
+
+--SECTION 15
+--CREATING AND MODIFYING THE TABLES
+
+--CREATE TABLES
+--1) Create table for our newsletter subscribers:  fields should be : first name, last name, email, signup date,frequency, is a customer(BOOLEAN)
+
+CREATE TABLE subscribers (
+	firstname varchar(200),
+	 lastname varchar(200),
+	email varchar(250),
+	signup timestamp,
+	frequency integer,
+	iscustomer boolean
+);
+
+SELECT * FROM subscribers;
+
+--2)Create a table for returns. Should have id for the record, customerid, date returned, product id, quantity and orderid
+CREATE TABLE returns (
+	returnrid serial,
+	customerid char(5),
+	returndate timestamp,
+	productid integer,
+	quantity smallint,
+	orderid integer
+);
+
+SELECT * FROM returns;
+
+
+
+
+--ALTER TABLE
+--Scenario One: Rename Field
+--1)Rename subscriber field change firstname to first_name
+SELECT * FROM subscribers;
+ALTER TABLE subscribers
+RENAME firstname TO first_name;
+
+--2)On return table rename returndate to return_date
+SELECT * FROM returns;
+ALTER TABLE returns
+RENAME returndate TO return_date;
+
+--Scenario Two: Rename Table
+--1)Rename subscribers to email_subscribers
+ALTER TABLE subscribers
+RENAME TO email_subscribers;
+
+--2)Change returns to bad_orders
+ALTER TABLE returns
+RENAME TO bad_orders;
+
+
+--Scenario Three: Add a Field
+--1)Add new column last_visit_date(date/time) to email_subscribers table
+SELECT * FROM email_subscribers;
+ALTER TABLE email_subscribers
+ADD COLUMN last_visit_date timestamp;
+
+--2)On bad_orders table add a text field called reason
+SELECT * FROM bad_orders;
+ALTER TABLE bad_orders
+ADD COLUMN reason text;
+
+--Scenario Four: Delete a Field
+--1)Remove column last_visit_date from email_subscribers table
+ALTER TABLE email_subscribers
+DROP COLUMN last_visit_date;
+
+--2)On bad_orders table remove reason field
+ALTER TABLE bad_orders
+DROP COLUMN reason;
+
+--Scenario Five : Change Data Type
+--1)Resize the email field in email_subscribers table to varchar with a lenght of 225
+SELECT * FROM email_subscribers;
+ALTER TABLE email_subscribers
+ALTER COLUMN email SET DATA TYPE varchar(225);
+
+--2)On bad_orders table change the quantity field to int(currently small int)
+SELECT * FROM bad_orders;
+ALTER TABLE bad_orders
+ALTER COLUMN quantity SET DATA TYPE int;
+
+--DROP Table
+--1)Get rid of email_subscribers table
+DROP TABLE email_subscribers;
+
+--2)Drop the bad_orders table
+DROP TABLE bad_orders;

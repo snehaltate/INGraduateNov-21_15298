@@ -1,0 +1,631 @@
+--DATE 11/01/2022
+--section 3
+--Simple selection of all records
+-- select * from customers;
+-- select * from employees;=>task
+-- select companyname, city, country from suppliers;
+-- select categoryname, description from categories;=>task
+-- select  country from customers; it shows duplicate/repeated valuesof country
+-- select distinct country from customers;
+-- select distinct city, country from customers;
+-- select distinct region from suppliers; =>task
+-- select count (*) from products;
+-- select count (*) from orders;=> task
+-- select count (distinct city) from suppliers;
+-- select count (distinct productid) from order_details;=>task
+-- select customerid, shippeddate- orderdate from orders;
+-- select orderid, unitprice*quantity from order_details;=>task
+**************************************************************************************
+--Section 4---- using where to select record--
+
+-- select companyname from suppliers where city='Berlin';
+-- select companyname,contactname from customers where city='Mexico';
+-- select count (*) from orders where employeeid=3;
+-- select count (*) from order_details where quantity>20;
+-- select count(*) from orders where freight>=250; 
+
+--Date
+-- select count (*) from orders where orderdate>='1998-01-01';
+-- select count (*) from orders where shippeddate<'1997-07-05';
+
+--logical AND
+
+-- select count (*) from orders where shipcountry='Germany' AND freight>100;
+-- select distinct (customerid) from orders where shipcountry='Brazil' AND shipvia=2;
+
+--logical OR
+
+-- select count(*) from customers where country='USA' OR country='Canada';
+-- select count(*) from suppliers where country='Germany' OR country='Spain';
+-- select count(*) from orders where shipcountry='USA' OR shipcountry='Brazil' OR shipcountry='Argentina';
+
+--Logical NOT
+
+SELECT COUNT(*) from customers WHERE NOT country='France';
+SELECT COUNT(*) from suppliers WHERE NOT country='USA';
+
+--Combining AND OR & NOT OPERATOR
+SELECT COUNT(*) from orders WHERE shipcountry='Germany' AND(freight <50 OR freight>175);
+SELECT COUNT(*) from orders WHERE shippeddate>'1997-05-01' AND(shipcountry='Canada' OR shipcountry='Spain' );
+SELECT COUNT(*) from orders WHERE (shipcountry='Canada' OR shipcountry='Spain' ) AND shippeddate>'1997-05-01';
+
+---BETWEEN
+SELECT COUNT(*) from order_details WHERE unitprice BETWEEN 10 AND 20; 
+
+SELECT COUNT(*) from orders WHERE shippeddate BETWEEN '1996-06-01' AND '1996-09-30'; 
+
+--USING IN
+SELECT COUNT(*) from suppliers WHERE country IN ('Germany', 'France','Spain','Italy'); ; 
+SELECT COUNT(*) from products WHERE categoryid IN (1,4,6,7);
+
+-------------------------------------------------------------------
+---meeting
+SELECT supplierid,COUNT(productid)
+FROM products
+GROUP BY supplierid
+ORDER BY supplierid;
+
+select country,count (customerid)
+from customers
+group by country
+order by country;
+
+
+select country,region,count (customerid)
+from customers
+group by country,region
+order by country,region;
+
+
+-- NO. OF EMPLOYEES REPORTING TO fULLER AND bUCHMAN
+-- REPORTSTO AND COUNT OF EMPLOYEES
+SELECT reportsto, COUNT(employeeid)
+ FROM public.employees
+ GROUP BY reportsto;
+ 
+ 
+ SELECT reportsto, COUNT(employeeid)
+ FROM public.employees
+ where reportsto is not null
+   GROUP BY reportsto;
+
+SELECT reportsto, COUNT(employeeid)
+ FROM public.employees
+ where reportsto is not null
+   GROUP BY reportsto
+   HAVING COUNT(employeeid)>3;
+
+--  SELECT reportsto, COUNT(employeeid)
+--  FROM public.employees
+--  where reportsto <=3
+--    GROUP BY reportsto;
+
+
+SELECT COUNT(region)
+FROM customers;
+
+*****************************************************************************************
+*****************************************************************************************
+
+---DATE 12/01/2022
+                   Section 7
+
+--ORDER BY 
+-- List of country and suppliers in alphabetical order
+SELECT DISTINCT country FROM suppliers ORDER BY country ASC
+SELECT DISTINCT country FROM suppliers ORDER BY country DESC
+--adding city 
+SELECT DISTINCT country,city FROM suppliers ORDER BY country ASC, city DESC
+SELECT DISTINCT country,city FROM suppliers ORDER BY country DESC, city ASC
+
+--Get a list of products names and unitprice order by highest to lowest product name a to z(if they have same price) 
+SELECT productname,unitprice FROM products
+ORDER BY unitprice DESC , productname ASC;
+
+
+--USING MIN & MAX 
+--QUES when was the first order ordered form italy
+SELECT MIN(orderdate)
+FROM orders WHERE shipcountry='Italy';
+
+---When was the last ordered shipped to canada
+SELECT MAX(shippeddate)
+FROM orders WHERE shipcountry='Canada';
+
+--find the slowest order sent to france based on order date versus ship date
+SELECT MAX(shippeddate-orderdate)
+FROM orders WHERE shipcountry='France';
+
+--USING AVG & SUM
+--What was average freight of orders shipped to brazil
+SELECT AVG(freight)
+FROM orders WHERE shipcountry='Brazil';
+
+--How many individual items of Tofu(productid=14) were ordered
+SELECT SUM(quantity)
+FROM order_details WHERE productid='14';
+
+--what was the avg number of Steeleye Stout (productid=35)per order 
+SELECT AVG(quantity)
+FROM order_details WHERE  productid='35';
+
+--LIKE MATCH PATTERN----
+--WHAT CUSTOMERS have a contact whose firstname starts with D
+SELECT companyname,contactname FROM customers WHERE contactname LIKE 'D%';
+
+--PATTERN with 
+--stands for any single characters
+
+-- which of our suppliers have 'or' as the 2nd and 3rd letters in the company name
+SELECT companyname FROM suppliers WHERE companyname LIKE '_or%';
+
+--which customers company name ends in 'er'
+SELECT companyname
+FROM customers
+WHERE companyname LIKE '%er';
+
+-- Renaming colunm name with alias
+SELECT unitprice*quantity AS TotalSpent FROM order_details;
+
+-- this won't work
+SELECT unitprice*quantity AS TotalSpent
+FROM order_details
+WHERE TotalSpent > 10;
+
+-- this one will
+SELECT unitprice*quantity AS TotalSpent
+FROM order_details
+ORDER BY TotalSpent DESC;
+
+--calculate our inventory value of products (need unitprice and unitsinstock fields) and return as TotalInventory and order by this colunm desc
+SELECT unitprice*unitsinstock AS TotalInventory
+FROM products
+ORDER BY TotalInventory DESC;
+
+---LIMIT TO CONTROL NUMBER OF RECORDS RETURNED--
+--FIND 3 MOST Expensive Order Details? will need to use calculated fields, order by and limit
+SELECT productid, unitprice*quantity AS TotalCost
+FROM order_details ORDER BY TotalCost DESC LIMIT 3;
+
+--Calculate the 2 products with the least inventory in stock by total dollar amount of inventory
+
+SELECT productname, unitprice*unitsinstock AS TotalInventory
+FROM products ORDER BY TotalInventory ASC LIMIT 2;
+
+
+--NULL VALUES--
+--How many customers dont have a region value
+SELECT COUNT(*) FROM customers WHERE region IS NULL;
+
+--How many suppliers have region value
+SELECT COUNT(*) FROM suppliers WHERE region IS NOT NULL;
+
+--How many orders did not have a ship region
+SELECT COUNT(*) FROM orders WHERE shipregion IS NULL;
+
+*********************************************************************
+
+-----Section 8 Joining multiple tables together
+
+--join information from two tables
+--1) I need a report that gives me customername,orderdate and shipcountry.You Know that data is in two separate tables: customers and orders 
+SELECT companyname,orderdate,shipcountry
+FROM orders
+JOIN customers ON customers.customerid=orders.customerid;
+
+--2)Connect employees to orders and pullback first name, last name and order date for all orders
+SELECT firstname,lastname,orderdate
+FROM orders
+JOIN employees ON employees.employeeid=orders.employeeid;
+
+--3)Connect products to suppliers and pull back company name, unit cost and unit in stock
+SELECT companyname,unitprice,unitsinstock
+FROM products
+JOIN suppliers ON products.supplierid=suppliers.supplierid;
+
+
+--multiple joins
+--1)Connect Customers, orders, orderdetails--Bring back company name, order date, productid,unitprice and quantity
+SELECT companyname,orderdate,unitprice,quantity
+FROM orders
+JOIN order_details ON orders.orderid=order_details.orderid
+JOIN customers ON customers.customerid=orders.customerid;
+
+--2)Connect products to previous query and add product name to fields returned
+SELECT companyname, productname, orderdate, order_details.unitprice, quantity
+FROM orders
+JOIN order_details ON orders.orderid=order_details.orderid
+JOIN customers ON customers.customerid=orders.customerid
+JOIN products ON products.productid=order_details.productid;
+
+--3)Connect categories to previous query and bring back category name 
+SELECT companyname, productname, categoryname,Orderdate, order_details.unitprice, quantity
+FROM orders
+JOIN order_details ON orders.orderid=order_details.orderid
+JOIN customers ON customers.customerid=orders.customerid
+JOIN products ON products.productid=order_details.productid
+JOIN categories ON categories.categoryid=products.categoryid;
+
+--4)Take previous query and add a WHERE clause that select category name of Seafood and amount spent>=500
+SELECT companyname, productname, categoryname,orderdate, order_details.unitprice, quantity
+FROM orders
+JOIN order_details ON orders.orderid=order_details.orderid
+JOIN customers ON customers.customerid=orders.customerid
+JOIN products ON products.productid=order_details.productid
+JOIN categories ON categories.categoryid=products.categoryid
+WHERE 	categoryname='Seafood' AND order_details.unitprice*quantity >= 500;
+
+
+--LEFT JOIN--> pull back all records in first table and any matching records in second table
+--1)Connect Customers to orders--> bring back compnay name, and order id
+
+SELECT companyname, orderid
+FROM customers
+LEFT JOIN orders ON customers.customerid=orders.customerid;
+
+--2)Lets look for customers without orders Use WHERE with IS NULL (where order id is null)
+SELECT companyname, orderid
+FROM customers
+LEFT JOIN orders ON customers.customerid=orders.customerid
+WHERE orderid IS NULL;
+
+--3)Do a left join between products and order_details
+SELECT productname, orderid
+FROM products
+LEFT JOIN order_details ON products.productid=order_details.productid;
+
+--4)use is null to find product without orders
+SELECT productname, orderid
+FROM products
+LEFT JOIN order_details ON products.productid=order_details.productid
+WHERE orderid IS NULL;
+
+
+---RIGHT JOIN--> pulls back matching records in first table and all records in second tables
+--1)Connect Customers to orders--> bring back compnay name, and order id, using reverse table order from last lesson.
+SELECT companyname, orderid
+FROM orders
+RIGHT JOIN customers ON customers.customerid=orders.customerid;
+
+--2)Lets look for customers without orders Use WHERE with IS NULL (where order id is null)
+SELECT companyname, orderid
+FROM orders
+RIGHT JOIN customers ON customers.customerid=orders.customerid
+WHERE orderid IS NULL;
+
+--3)Do a right join between customer demo and customers
+SELECT companyname, customercustomerdemo.customerid
+FROM customercustomerdemo
+RIGHT JOIN customers ON customers.customerid=customercustomerdemo.customerid;
+
+--FULL JOIN => pulls all records in first table and all records in second table
+--1)Connect Customers to orders--> bring back compnay name, and order id
+
+SELECT companyname, orderid
+FROM orders
+FULL JOIN customers ON customers.customerid=orders.customerid;
+
+--2)Do a full join between products and categories
+SELECT productname, categoryname
+FROM categories
+FULL JOIN products ON products.categoryid=categories.categoryid;
+
+
+--SELF JOIN => connect a table back to itself
+--1)Who are in the same city and order by city
+SELECT c1.companyname AS CustomerName1, c2.companyname AS CustomerName2, c1.city
+FROM customers AS c1
+JOIN customers AS c2 on c1.city=c2.city
+ORDER BY c1.city;
+
+--2)Lets try again WHERE c1.custmerid<>c2.custmerid
+SELECT c1.companyname AS CustomerName1, c2.companyname AS CustomerName2, c1.city
+FROM customers AS c1
+JOIN customers AS c2 on c1.city=c2.city
+WHERE c1.customerid<>c2.customerid
+ORDER BY c1.city;
+
+
+--3) Find suppliers from same country and order by country
+SELECT  s1.companyname AS SupplierName1,s2.companyname AS SupplierName2,  s1.country
+FROM suppliers s1
+JOIN suppliers s2 ON s1.country= s2.country
+WHERE s1.supplierid <> s2.supplierid
+ORDER BY s1.country;
+
+--or 
+
+SELECT  s1.companyname AS SupplierName1,s2.companyname AS SupplierName2,  s1.country
+FROM suppliers s1, suppliers s2 
+WHERE s1.supplierid <> s2.supplierid
+AND s1.country= s2.country
+ORDER BY s1.country;
+
+--USING TO REDUCE TYPING
+ON customers.cutomerid=orders.customersid
+Lot of typing!!
+Shorcut: USING(customerid)
+
+--1)Join orders to order_details with USING
+SELECT *
+FROM orders
+JOIN order_details USING (orderid);
+
+--2)Add products to the previous join of orders and order_details
+SELECT *
+FROM orders
+JOIN order_details USING (orderid)
+JOIN products USING (productid);
+
+
+--NATURAL JOIN
+--If the fields have same name, NATURAL is shorthand for USING with a list of all columns that are the same in both tables
+--1)Join order and order_details using NATURAL
+SELECT *
+FROM orders
+NATURAL JOIN order_details;
+
+--2)Add customers to previous query using NATURAL join.
+--Warning you must order the joins correctly. The NATURAL must connect previous table to next table or it will do a cross join connecting every row to evry the row.
+SELECT *
+FROM customers
+NATURAL JOIN orders
+NATURAL JOIN order_details;
+
+--It will match all fields that have the same name. wont work joining products to order_details because of the second field unitprice that is in both fields Must use USING or a JOIN ON Syntax
+
+--NATURAL JOIN
+
+--notice the difference between these two joins
+SELECT COUNT(*)
+FROM products
+NATURAL JOIN order_details;  --this is joining on both productid and unitprice
+
+SELECT COUNT(*)
+FROM products
+JOIN order_details USING (productid);
+
+
+*********************************************************************
+
+---section 9 GROUPING AND AGGREGATION
+
+--1)How many customers do we have in each counry
+
+SELECT COUNT(*), country
+FROM customers
+GROUP BY country
+ORDER BY COUNT(*) DESC;
+
+--2)what is the number of products 
+
+SELECT COUNT(*),categoryname
+FROM categories
+JOIN products ON categories.categoryid=products.categoryid
+GROUP BY categoryname
+ORDER BY COUNT(*) DESC;
+
+3)What is the average number of items ordered for products ordered by the average amount?
+
+SELECT productname,ROUND(AVG(quantity))
+FROM products
+JOIN order_details ON order_details.productid=products.productid
+GROUP BY productname
+ORDER BY AVG(quantity) DESC;
+
+4)How many suppliers in each country?
+
+SELECT COUNT(*),country
+FROM suppliers
+GROUP BY country
+ORDER BY COUNT(*) DESC;
+
+5) Total value of each product sold for year of 1997
+
+SELECT productname, SUM(quantity * order_details.unitprice) AS AmountBought
+FROM products
+JOIN order_details ON order_details.productid=products.productid
+JOIN orders ON orders.orderid=order_details.orderid
+WHERE orderdate BETWEEN '1997-01-01' AND '1997-12-31'
+GROUP BY productname
+ORDER BY AmountBought DESC;
+
+
+--USE HAVING TO FILTERS GROUP
+--1)find products that sold less than $2000
+
+SELECT productname, SUM(quantity * order_details.unitprice) AS AmountBought
+FROM products
+JOIN order_details USING (productid)
+GROUP BY productname
+HAVING SUM(quantity * order_details.unitprice) <2000
+ORDER BY AmountBought ASC;
+
+--2) Customers that bought more than $5000 of products
+SELECT companyname, SUM(quantity * order_details.unitprice) AS AmountBought
+FROM customers
+NATURAL JOIN orders
+NATURAL JOIN order_details
+GROUP BY companyname
+HAVING SUM(quantity * order_details.unitprice) >5000
+ORDER BY AmountBought DESC;
+
+3)See the effect of where clause
+--Customers that have bought more than $5000 of products with order date in first six months of the year of 1997
+
+SELECT companyname, SUM(quantity * order_details.unitprice) AS AmountBought
+FROM customers
+NATURAL JOIN orders
+NATURAL JOIN order_details
+WHERE orderdate BETWEEN '1997-01-01' AND '1997-6-30'
+GROUP BY companyname
+HAVING SUM(quantity * order_details.unitprice) >5000
+ORDER BY AmountBought DESC;
+
+
+
+--GROUPING SETS
+
+1)Total sales grouped by prduct and category
+
+SELECT categoryname,productname,SUM(od.unitprice*quantity)
+FROM categories
+NATURAL JOIN products
+NATURAL JOIN order_details AS od
+GROUP BY GROUPING SETS  ((categoryname),(categoryname,productname))
+ORDER BY categoryname, productname;
+
+2)Find total sales both customer's companyname renamed as buyerand supplier's companyname renamed as supplier and orderby buyer and supplier
+
+SELECT c.companyname AS buyer,s.companyname AS supplier,SUM(od.unitprice*quantity)
+FROM customers AS c
+NATURAL JOIN orders
+NATURAL JOIN order_details AS od
+JOIN products USING (productid)
+JOIN suppliers  AS s USING (supplierid)
+GROUP BY GROUPING SETS ((buyer),(buyer,supplier))
+ORDER BY buyer,supplier;
+
+3) Find total sales grouped by customer companyname and categryname(must link to tables)order bycompanyname, categoryname withNULL FIRST
+SELECT companyname,categoryname,SUM(od.unitprice*quantity)
+FROM customers AS c
+NATURAL JOIN orders
+NATURAL JOIN order_details AS od
+JOIN products USING (productid)
+JOIN categories  AS s USING (categoryid)
+GROUP BY GROUPING SETS ((companyname),(companyname,categoryname))
+ORDER BY companyname,categoryname NULLS FIRST;
+
+
+--Rollup
+
+--1) Let's do a rollup with customer, categories and product
+
+SELECT c.companyname,categoryname,productname,SUM(od.unitprice*quantity)
+FROM customers AS c
+NATURAL JOIN orders
+NATURAL JOIN order_details AS od
+JOIN products USING (productid)
+JOIN categories  USING (categoryid)
+GROUP BY ROLLUP(companyname, categoryname, productname)
+ORDER BY companyname,categoryname,productname;
+
+--2)Do a rollup of suppliers, products and customers
+
+SELECT s.companyname AS supplier, c.companyname AS buyer,productname, SUM(od.unitprice*quantity)
+FROM suppliers AS s
+JOIN products USING (supplierid)
+JOIN order_details AS od USING (productid)
+JOIN orders USING (orderid)
+JOIN customers AS c USING (customerid)
+GROUP BY ROLLUP(supplier, buyer, productname)
+ORDER BY supplier,buyer,productname;
+
+
+--CUBE
+--1)Lets do a cube of total sales by customer,categories, and products
+SELECT c.companyname,categoryname,productname,SUM(od.unitprice*quantity)
+FROM customers AS c
+NATURAL JOIN orders
+NATURAL JOIN order_details AS od
+JOIN products USING (productid)
+JOIN categories  USING (categoryid)
+GROUP BY CUBE (companyname, categoryname, productname);
+
+--2)1)Lets do a cube of total sales by suppliers,products and customer
+SELECT s.companyname AS supplier, c.companyname AS buyer,productname, SUM(od.unitprice*quantity)
+FROM suppliers AS s
+JOIN products USING (supplierid)
+JOIN order_details AS od USING (productid)
+JOIN orders USING (orderid)
+JOIN customers AS c USING (customerid)
+GROUP BY CUBE(supplier, buyer, productname);
+
+
+
+**********************************************************************
+--Section 10 
+--COMBINING QUERIES
+--Get a list of customers and suppliers company names
+SELECT companyname FROM customers
+UNION
+SELECT companyname FROM suppliers;
+
+--Find cities of all our customers and suppliers with one record for each company city
+SELECT city FROM customers
+UNION ALL
+SELECT city FROM suppliers;
+
+--Distinct countries of all our customers and suppliers in alphabetical order
+SELECT country FROM customers
+UNION 
+SELECT country FROM suppliers
+ORDER BY country ASC;
+
+--All list of countries of our suppliers and customers, with a record of each one
+SELECT country FROM customers
+UNION ALL
+SELECT country FROM suppliers
+ORDER BY country ASC;
+
+
+--INTERSECT
+--Find all countries that we have both customers and suppliers in
+
+SELECT country FROM customers
+INTERSECT 
+SELECT country FROM suppliers
+
+--Find number of customers and suppliers pairs that are in the same country
+SELECT COUNT (*) FROM (SELECT country FROM customers
+INTERSECT ALL
+SELECT country FROM suppliers) AS together
+
+--Distinct cities that we have a suppliers and customers located in
+
+SELECT city FROM customers
+INTERSECT ALL
+SELECT city FROM suppliers;
+
+-- The count of the number of customers and suppliers pairs that are in the same city
+
+SELECT COUNT (*) FROM (SELECT city FROM customers
+INTERSECT ALL
+SELECT city FROM suppliers) AS same_city
+
+
+
+--EXCEPT
+--Find all countries that we customers in but no suppliers
+SELECT country FROM customers
+EXCEPT
+SELECT country FROM suppliers;
+
+--Find the number of customer that are in a country without suppliers
+SELECT COUNT(*) FROM
+(SELECT country FROM customers
+EXCEPT ALL
+SELECT country FROM suppliers) AS lonely_customers;
+
+--Cities we have a supplier with no customer 
+SELECT city FROM suppliers
+EXCEPT
+SELECT city FROM customers;
+
+--How many customers do we have in cities without suppliers
+SELECT COUNT(*) FROM
+(SELECT city FROM customers
+EXCEPT ALL
+SELECT city FROM suppliers) AS lonely_customers;
+
+
+
+
+
+
+
+
+
+
+
+

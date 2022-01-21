@@ -1,0 +1,45 @@
+--SECTION 31
+--Managing Database
+
+--1)Create a second northwind database ==> call it northwind2
+CREATE DATABASE northwind2;
+
+
+--Using the Command Line-->psql
+createdb fiddlesticks  --> this command is not working on psql
+
+postgres=# create database fiddlesticks;
+CREATE DATABASE
+postgres=#
+
+--2)Create a database called mydb5 with SQL
+CREATE DATABASE mydb5;
+
+--Create a database called mydb5_bak with command line
+createdb mydb5_bak  --> this command is not working on psql
+
+postgres=# create database mydb5_bak;
+CREATE DATABASE
+postgres=#
+
+
+--Drop Database
+--Delete Second Northwind ==> Remove nothwind2
+
+DROP DATABASE IF EXISTS northwind2;
+
+--Using command line delete database
+dropdb fiddlesticks --> this command is not working on psql
+
+postgres=# drop database fiddlesticks;
+DROP DATABASE
+postgres=#
+
+
+DROP DATABASE IF EXISTS mydb5;
+
+dropdb mydb5_bak --> this command is not working on psql
+
+postgres=# drop database mydb5_bak;
+DROP DATABASE
+postgres=#
